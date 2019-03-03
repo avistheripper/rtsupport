@@ -32,6 +32,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		fmt.Println(string(msg))
-		err = socket.WriteMessage(msgType, msg)
+		if err = socket.WriteMessage(msgType, msg); err != nil {
+			fmt.Println(err)
+			return
+		}
 	}
 }
