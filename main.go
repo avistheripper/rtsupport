@@ -1,92 +1,49 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"net/http"
-	"time"
 
-	"github.com/gorilla/websocket"
-	"github.com/mitchellh/mapstructure"
+	"github.com/gorilla/mux"
 )
 
-type Message struct {
-	Name string      `json: "name"`
-	Data interface{} `json: "data"`
+type Book struct {
+	ID     int    `json:id`
+	Title  string `json:title`
+	Author string `json:author`
+	Year   string `json:year`
 }
 
-type Channel struct {
-	Id   string `json: "id"`
-	Name string `json: "name"`
-}
-
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-	CheckOrigin:     func(r *http.Request) bool { return true },
-}
+var books []Book
 
 func main() {
-	http.HandleFunc("/", handler)
-	http.ListenAndServe(":4000", nil)
+	router := mux.NewRouter()
+	router.HandleFunc("/books", getBooks).Methods("GET")
+	router.HandleFunc("/books/{id}", getBook).Methods("GET")
+	router.HandleFunc("/books", addBook).Methods("POST")
+	router.HandleFunc("/books/{id}", updateBook).Methods("PUT")
+	router.HandleFunc("/books/{id}", removeBook).Methods("DELETE")
+
+	log.Fatal(http.ListenAndServe(":8000", router))
+
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	// fmt.Fprintf(w, "Response")
-	socket, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	for {
-		// msgType, msg, err := socket.ReadMessage()
-		// if err != nil {
-		// 	fmt.Println(err)
-		// 	return
-		// }
-		var inMessage Message
-		var outMessage Message
-		if err := socket.ReadJSON(&inMessage); err != nil {
-			fmt.Println(err)
-			break
-		}
-		switch inMessage.Name {
-		case "channel add":
-			err := addChannel(inMessage.Data)
-			if err != nil {
-				outMessage = Message{"error", err}
-				if err := socket.WriteJSON(outMessage); err != nil {
-					fmt.Println(err)
-					break
-				}
-			}
-		case "channel subscribe":
-			go subscribeChannel(socket)
-		}
-		// fmt.Println(string(msg))
-		// if err = socket.WriteMessage(msgType, msg); err != nil {
-		// 	fmt.Println(err)
-		// 	return
-		// }
-	}
+func getBooks(w *http.ResponseWriter, r *http.Request) {
+	log.Println("Getting all books")
 }
 
-func addChannel(data interface{}) error {
-	var channel Channel
-	err := mapstructure.Decode(data, &channel)
-	if err != nil {
-		return err
-	}
-	channel.Id = "1"
-	return nil
+func getBook(w *http.ResponseWriter, r *http.Request) {
+	log.Println("Getting single book")
 }
 
-func subscribeChannel(socket *websocket.Conn) {
-	// TODO: rethinkDB Query / changefeed
-	for {
-		time.Sleep(time.Second * 1)
-		message := Message{"channel add", 
-		Channel{"1", "Software support"}
-		}
-		socket.WriteJSON(message)
-	}
+func addBook(w *http.ResponseWriter, r *http.Request) {
+	log.Println("Add book")
+}
+
+func updateBook(w *http.ResponseWriter, r *http.Request) {
+	log.Println("Updating book")
+}
+
+func removeBook(w *http.ResponseWriter, r *http.Request) {
+	log.Println("Removing book")
 }
