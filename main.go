@@ -24,26 +24,26 @@ func main() {
 	router.HandleFunc("/books/{id}", updateBook).Methods("PUT")
 	router.HandleFunc("/books/{id}", removeBook).Methods("DELETE")
 
-	log.Fatal(http.ListenAndServe(":8000", router))
+	http.ListenAndServe(":8000", router)
 
 }
 
-func getBooks(w *http.ResponseWriter, r *http.Request) {
+func getBooks(w http.ResponseWriter, r *http.Request) {
 	log.Println("Getting all books")
 }
 
-func getBook(w *http.ResponseWriter, r *http.Request) {
+func getBook(w http.ResponseWriter, r *http.Request) {
 	log.Println("Getting single book")
 }
 
-func addBook(w *http.ResponseWriter, r *http.Request) {
+func addBook(w http.ResponseWriter, r *http.Request) {
 	log.Println("Add book")
 }
 
-func updateBook(w *http.ResponseWriter, r *http.Request) {
+func updateBook(w http.ResponseWriter, r *http.Request) {
 	log.Println("Updating book")
 }
 
-func removeBook(w *http.ResponseWriter, r *http.Request) {
+func removeBook(w http.ResponseWriter, r *http.Request) {
 	log.Println("Removing book")
 }
